@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
+from keras import callbacks
 import shutil
 import random
 import numpy as np
@@ -11,24 +12,16 @@ import utils
 import os
 import random
 
+#imageWidth, imageHeight = 187, 150
 imageWidth, imageHeight = 93, 75
-amountCroppedSplitDomino = 300 #len(os.listdir('screenshots/croppedDomino')) - 10
-amountCroppedSplitNoDomino = 400 #len(os.listdir('screenshots/croppedNoDomino')) - 10
+
+#imageWidth, imageHeight = 187, 150
+
+amountCroppedSplitDomino = 200 #len(os.listdir('screenshots/croppedDomino')) - 10
+amountCroppedSplitNoDomino = 200 #len(os.listdir('screenshots/croppedNoDomino')) - 10
 testAmount = int(amountCroppedSplitDomino / 5)
 trainAmount = int(amountCroppedSplitDomino / 5 * 4)
 
-
-def fetchImagesFromPool(train, test):
-    utils.fetchImagesFromPool(1, 1+train, 'screenshots/croppedNoDomino', 'screenshots/train/noDomino')
-    utils.fetchImagesFromPool(1, 1+train, 'screenshots/croppedDomino', 'screenshots/train/domino')
-    utils.fetchImagesFromPool(1+train, 1+train+test, 'screenshots/croppedNoDomino', 'screenshots/test/noDomino')
-    utils.fetchImagesFromPool(1+train, 1+train+test, 'screenshots/croppedDomino', 'screenshots/test/domino')
-
-def emptyTrainAndTestFolders():
-    utils.emptyFolder('screenshots/train/noDomino')
-    utils.emptyFolder('screenshots/train/domino')
-    utils.emptyFolder('screenshots/test/noDomino')
-    utils.emptyFolder('screenshots/test/domino')
 
 def trainModel1(train, epochs=5, folds=5):
     print('Training model with', epochs, 'epochs...')
@@ -49,10 +42,12 @@ def trainModel1(train, epochs=5, folds=5):
         input_shape = (imgWidth, imgHeight, 3)
 
 
+
     for i in range(folds):
         splitPrepare(trainAmount, testAmount)
 
         model = getModel(input_shape)
+        callbacks.EarlyStopping(monitor='val_loss', min_delta=0.01, patience=0, verbose=1, mode='auto')
 
         trainDataGen = ImageDataGenerator(rescale=1./255)
         testDataGen = ImageDataGenerator(rescale=1./255)
@@ -67,36 +62,24 @@ def trainModel1(train, epochs=5, folds=5):
             batch_size=batchSize,
             class_mode='binary')
 
-        ''' Returns:
-        A DirectoryIterator yielding tuples of(cross, y) where cross is a numpy array containing a batch of images with shape(batch_size, *target_size, channels) and y is a numpy array of corresponding labels.
-        
-    
-        print(len(trainingSet)) # anzahl bilder / batchSize
-        print(len(trainingSet[0])) # tuple
-        print(len(trainingSet[1])) # tuple
-        print(len(trainingSet[2])) # tuple
-    
-        print(len(trainingSet[0][0])) # tuple 0, numpy array 0 (numpy array containing a batch of images with shape(batch_size, *target_size, channels)) = batch of 32 images
-        print(trainingSet[0][0][0].shape)
-        print(len(trainingSet[0][0][0][0])) # erstes image
-    
-        print(trainingSet[0][0][0][0]) # erstes image
-    
-        #print(trainingSet[0][0])
-        #print(trainingSet[1][0])
-        '''
-
         if train:
             print('training...')
-            output = model.fit_generator(
+            history = model.fit_generator(
                 trainingSet,
                 steps_per_epoch=trainSamples // batchSize,
                 epochs=epochs,
                 validation_data=testSet,
                 validation_steps=testSamples // batchSize,
-                verbose=2)
+                verbose=1)
 
             model.save_weights('firstTry.h5')
+            utils.plot(history)
+            if i == 0:
+                utils.latexTableTopline()
+            utils.latexTable(trainSamples*2, testSamples*2, epochs, batchSize, imageWidth, imageHeight, history)
+            if i == folds-1:
+                utils.latexTableBottomline()
+
         else:
             model.load_weights('firstTry.h5')
 
@@ -116,9 +99,9 @@ def getModel(input_shape):
     model.add(Dense(units=128, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(units=1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy',
+    model.compile(loss = 'binary_crossentropy',
                   optimizer='adam',
-                  metrics=['accuracy'])
+                  metrics=['accuracy', standardabweichung])
     return model
 
 
@@ -139,9 +122,17 @@ def validateImages(model, trainingSet):
             print(file + ': ' + prediction)
             print(result)
 
+def standardabweichung(y_true, y_pred):
+    return (y_pred - y_true)
+    #return (y_pred - y_true)
+
+def getPercentile(y_true, y_pred):
+    e = K.binary_crossentropy(y_true, y_pred)
+    e = (y_true - y_pred)
+    return np.percentile(0.5, [20, 80])
 
 def prepare():
-    emptyTrainAndTestFolders()
+    utils.emptyTrainAndTestFolders()
     utils.emptyFolder('screenshots/resizedDomino')
     utils.emptyFolder('screenshots/resizedNoDomino')
     utils.emptyFolder('screenshots/originalDomino')
@@ -219,6 +210,6 @@ def splitPrepare(trainSampleSize, testSampleSize):
 if __name__ == "__main__":
 
     #prepare()
-    trainModel1(train=True, epochs=1, folds=5)
+    trainModel1(train=True, epochs=20, folds=1)
 
  

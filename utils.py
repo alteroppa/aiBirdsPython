@@ -1,6 +1,9 @@
 from PIL import Image
 import os
 import shutil
+import matplotlib.pyplot as plt
+from datetime import datetime
+
 
 def resizeImages(size):
     print('resizing images in original folders to size ' + size + ' ...')
@@ -20,6 +23,17 @@ def getCoordinatesFile():
     coordinatesGoal = 'screenshots/coordinates.txt'
     shutil.copy(coordinatesSrc, coordinatesGoal)
 
+def fetchAllImagesFromPool(train, test):
+    fetchImagesFromPool(1, 1+train, 'screenshots/croppedNoDomino', 'screenshots/train/noDomino')
+    fetchImagesFromPool(1, 1+train, 'screenshots/croppedDomino', 'screenshots/train/domino')
+    fetchImagesFromPool(1+train, 1+train+test, 'screenshots/croppedNoDomino', 'screenshots/test/noDomino')
+    fetchImagesFromPool(1+train, 1+train+test, 'screenshots/croppedDomino', 'screenshots/test/domino')
+
+def emptyTrainAndTestFolders():
+    emptyFolder('screenshots/train/noDomino')
+    emptyFolder('screenshots/train/domino')
+    emptyFolder('screenshots/test/noDomino')
+    emptyFolder('screenshots/test/domino')
 
 def fetchImagesFromSourceToOriginalFolders():
     print('fetching images from source (aibirds/abV1.32/screenshots) to screenshots/original[No]Domino ...')
@@ -123,6 +137,53 @@ def splitAndCropImagesDominoScreenshots(folderToRead):
                 definitiveDominoStructure.save(
                     'screenshots/croppedDomino/croppedBot' + file[:-4] + '_extra.png')'''
 
+def plot(history):
+    print(history.history)
+    #history.history is a dict with 'val_loss'=[...], 'val_acc'=..., 'val', 'loss'
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    val_acc = history.history['val_acc']
+    standardabweichung = history.history['standardabweichung']
+    epochs = range(1, len(loss) + 1)
+    plt.plot(epochs, loss, 'r', label='Training loss',)
+    plt.plot(epochs, val_loss, 'b', label='Validation loss')
+    plt.plot(epochs, val_acc, 'g', label='Validation accuracy')
+    plt.plot(epochs, standardabweichung, 'y', label='standardabweichung')
+    plt.title('Training and validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
+
+def latexTableTopline():
+    with open('latexTable.txt', mode='a') as latexfile:
+        latexfile.write('\n\n' + str(datetime.now()) +
+                        '\n\\begin{table}[]\n\centering{}\n\\resizebox{\\textwidth}{!}{%'
+                        '\n\\begin{tabular}{lllllllll}\n'
+                        + '\\textbf{train samples} & \\textbf{test samples} & \\textbf{epochs} '
+                        + '& \\textbf{batch size} & \\textbf{img width} & \\textbf{img height} '
+                          ' & \\textbf{acc} & \\textbf{val loss} & \\textbf{val acc}\\\\\n\hline')
+
+def latexTable(trainSamples, testSamples, epochs, batchSize, imageWidth, imageHeight, history):
+    with open('latexTable.txt', mode='a') as latexfile:
+        latexfile.write('\n'
+                        + str(trainSamples) + ' & '
+                        + str(testSamples) + ' & '
+                        + str(epochs) + ' & '
+                        + str(batchSize) + ' & '
+                        + str(imageWidth) + ' & '
+                        + str(imageHeight) + ' & '
+                        + str("%.4f" % round(history.history['acc'][0],4)) + ' & '
+                        + str("%.4f" % round(history.history['val_loss'][0],4)) + ' & '
+                        + str("%.4f" % round(history.history['val_acc'][0],4)) + '\\\\'
+                        )
+
+def latexTableBottomline():
+    with open('latexTable.txt', mode='a') as latexfile:
+        latexfile.write('\n\hline\n\end{tabular}%\n}\n\caption{Auswertungstabelle}\n\end{table}')
+
+
+
 def splitAndCropImagesNoDominoScreenshots(folderToRead):
     print('splitting and cropping images in folder ' + folderToRead + '...')
     cutPixelsUntilSlingshot = 52
@@ -151,3 +212,4 @@ def splitAndCropImagesNoDominoScreenshots(folderToRead):
                 # bottom half cut in 4 quarters
                 newImageBottomHalf = newImage.crop((x1, halfHeight, x2, newHeight))
                 newImageBottomHalf.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(j + 1) + '.png')
+
