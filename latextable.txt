@@ -355,3 +355,45 @@ hline
 }
 \caption{Auswertungstabelle}
 \end{table}
+
+2018-08-03 12:35:50.935568
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc}\\
+\hline
+320 & 80 & 20 & 32 & 93 & 75 & 0.4750 & 0.7273 & 0.5000\\
+\hline
+\end{tabular}%
+}
+\caption{Auswertungstabelle}
+\end{table}
+
+2018-08-03 12:42:23.891846
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc}\\
+\hline
+320 & 80 & 20 & 32 & 93 & 75 & 0.5500 & 0.8624 & 0.4062\\
+\hline
+\end{tabular}%
+}
+\caption{Auswertungstabelle}
+\end{table}
+
+2018-08-03 12:59:14.128791
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc}\\
+\hline
+2720 & 680 & 20 & 32 & 93 & 75 & 0.7426 & 0.4349 & 0.7781\\
+\hline
+\end{tabular}%
+}
+\caption{Auswertungstabelle}
+\end{table}

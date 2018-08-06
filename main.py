@@ -17,8 +17,8 @@ imageWidth, imageHeight = 93, 75
 
 #imageWidth, imageHeight = 187, 150
 
-amountCroppedSplitDomino = 200 #len(os.listdir('screenshots/croppedDomino')) - 10
-amountCroppedSplitNoDomino = 200 #len(os.listdir('screenshots/croppedNoDomino')) - 10
+amountCroppedSplitDomino = 1700 #len(os.listdir('screenshots/croppedDomino')) - 10
+amountCroppedSplitNoDomino = 1700 #len(os.listdir('screenshots/croppedNoDomino')) - 10
 testAmount = int(amountCroppedSplitDomino / 5)
 trainAmount = int(amountCroppedSplitDomino / 5 * 4)
 
@@ -73,7 +73,7 @@ def trainModel1(train, epochs=5, folds=5):
                 verbose=1)
 
             model.save_weights('firstTry.h5')
-            utils.plot(history)
+            utils.plot(history, epochs, trainSamples))
             if i == 0:
                 utils.latexTableTopline()
             utils.latexTable(trainSamples*2, testSamples*2, epochs, batchSize, imageWidth, imageHeight, history)
@@ -135,15 +135,15 @@ def prepare():
     utils.emptyTrainAndTestFolders()
     utils.emptyFolder('screenshots/resizedDomino')
     utils.emptyFolder('screenshots/resizedNoDomino')
-    utils.emptyFolder('screenshots/originalDomino')
-    utils.emptyFolder('screenshots/originalNoDomino')
+    #utils.emptyFolder('screenshots/originalDomino')
+    #utils.emptyFolder('screenshots/originalNoDomino')
     utils.emptyFolder('screenshots/validationFolder')
     utils.emptyFolder('screenshots/croppedDomino')
     utils.emptyFolder('screenshots/croppedNoDomino')
-    utils.getCoordinatesFile()
-    utils.fetchImagesFromSourceToOriginalFolders()
-    utils.splitAndCropImagesDominoScreenshots('screenshots/originalDomino')
-    utils.splitAndCropImagesNoDominoScreenshots('screenshots/originalNoDomino')
+    #utils.getCoordinatesFile()
+    #utils.fetchImagesFromSourceToOriginalFolders()
+    utils.splitAndCropImagesSlidingWindow('screenshots/originalDomino')
+    utils.splitAndCropImagesSlidingWindow('screenshots/originalNoDomino')
 
 
     # copies the test images into the folders

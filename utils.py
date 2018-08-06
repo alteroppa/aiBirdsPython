@@ -86,6 +86,47 @@ def cropImagesInFolder(folderName):
             newImage = image.crop((0, 40, width-10, 165))
             newImage.save(folderName + '/' + file)
 
+
+def splitAndCropImagesSlidingWindow(folderToRead):
+    print('splitting and cropping images in folder ' + folderToRead + '...')
+    with open('screenshots/coordinates.txt') as coordsFromFile:
+        coordinates = coordsFromFile.readlines()
+    cutPixelsUntilSlingshot = 52
+    cutPixelsFromEnd = 40
+
+    for file in os.listdir(folderToRead):
+        if file.endswith('.png'):
+            levelNumber = file[5:-4]
+            structureX = (int(coordinates[int(levelNumber) - 1].split(';')[1])) * 5 + 14 - cutPixelsUntilSlingshot
+            distance = (int(coordinates[int(levelNumber) - 1].split(';')[3])) * 5 + 14
+            image = Image.open(folderToRead + '/' + file)
+            originalWidth, originalHeight = image.size
+            newImage = image.crop((cutPixelsUntilSlingshot, 90, originalWidth - cutPixelsFromEnd, 390))
+            newWidth, newHeight = newImage.size
+            quarterWidth = newWidth/4
+            halfHeight = newHeight/2
+
+            windowEndWidth = quarterWidth
+            windowStartWidth = 0
+            iterator = 0
+
+            while windowEndWidth <= newWidth:
+                windowBottom = newImage.crop((windowStartWidth, halfHeight, windowEndWidth, newHeight))
+                if 'originalDomino' in folderToRead:
+                    if structureX > int((windowStartWidth + distance)) and structureX < int((windowEndWidth - distance)):
+                        windowBottom.save('screenshots/croppedDomino/croppedBot' + file[:-4] + '_' + str(iterator+1) + '.png')
+                    else:
+                        windowBottom.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(iterator+1) + '.png')
+                else:
+                    windowBottom.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(iterator + 1) + '.png')
+
+                windowStartWidth += 20
+                windowEndWidth += 20
+                iterator += 1
+
+
+
+
 def splitAndCropImagesDominoScreenshots(folderToRead):
     print('splitting and cropping images in folder ' + folderToRead + '...')
     with open('screenshots/coordinates.txt') as coordsFromFile:
@@ -137,7 +178,7 @@ def splitAndCropImagesDominoScreenshots(folderToRead):
                 definitiveDominoStructure.save(
                     'screenshots/croppedDomino/croppedBot' + file[:-4] + '_extra.png')'''
 
-def plot(history):
+def plot(history, totalEpochs, trainSamples):
     print(history.history)
     #history.history is a dict with 'val_loss'=[...], 'val_acc'=..., 'val', 'loss'
     loss = history.history['loss']
@@ -150,10 +191,12 @@ def plot(history):
     plt.plot(epochs, val_acc, 'g', label='Validation accuracy')
     plt.plot(epochs, standardabweichung, 'y', label='standardabweichung')
     plt.title('Training and validation loss')
-    plt.xlabel('Epochs')
+    testSamples = trainSamples / 5
+    plt.xlabel('Epochs (an ' + trainSamples + '/' + testSamples + ' train/test samples)')
     plt.ylabel('Loss')
     plt.legend()
     plt.show()
+    plt.savefig(str(totalEpochs) + ' epcs, ' + str(trainSamples) + 'trnSmpls ' + str(datetime.now()) + '.png')
 
 def latexTableTopline():
     with open('latexTable.txt', mode='a') as latexfile:
