@@ -397,3 +397,232 @@ hline
 }
 \caption{Auswertungstabelle}
 \end{table}
+
+2018-08-08 08:54:38.963095
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc}\\
+\hline
+960 & 240 & 30 & 32 & 93 & 75 & 0.5333 & 0.6408 & 0.8333\\
+\hline
+\end{tabular}%
+}
+\caption{Auswertungstabelle}
+\end{table}
+
+2018-08-09 13:18:36.028227
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc}\\
+\hline
+12384 & 264 & 10 & 32 & 93 & 75 & 0.9160 & 0.1796 & 0.9141\\
+12384 & 264 & 10 & 32 & 93 & 75 & 0.9196 & 0.2268 & 0.9141\\
+\hline
+\end{tabular}%
+}
+\caption{Auswertungstabelle}
+\end{table}
+
+2018-08-09 16:24:09.808941
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc} & \textbf{ben. Zeit}b\\
+\hline
+12378 & 264 & 20 & 32 & 93 & 75 & 0.9177 & 0.0934 & 0.9531 & 0:26:12.776336\\
+12378 & 264 & 20 & 32 & 93 & 75 & 0.9180 & 0.1670 & 0.9219 & 0:24:29.551061\\
+12378 & 264 & 20 & 32 & 93 & 75 & 0.9189 & 0.1408 & 0.9219 & 0:25:19.530983\\
+
+2018-08-09 17:50:41.753361
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllllll}
+\textbf{train samples} & \textbf{test samples} & \textbf{epochs} & \textbf{batch size} & \textbf{img width} & \textbf{img height}  & \textbf{acc} & \textbf{val loss} & \textbf{val acc} & \textbf{ben. Zeit}b\\
+\hline
+6716 & 1678 & 30 & 32 & 93 & 75 & 0.9158 & 0.1481 & 0.9195 & 0:26:02.350016\\
+6716 & 1678 & 30 & 32 & 93 & 75 & 0.9161 & 0.2445 & 0.9135 & 0:22:19.888963\\
+6716 & 1678 & 30 & 32 & 93 & 75 & 0.9149 & 0.1891 & 0.9231 & 0:22:22.581270\\
+6716 & 1678 & 30 & 32 & 93 & 75 & 0.9185 & 0.2499 & 0.9207 & 0:23:44.672786\\
+6716 & 1678 & 30 & 32 & 93 & 75 & 0.9222 & 0.2235 & 0.9207 & 0:24:54.033413\\
+\hline
+\end{tabular}%
+}
+\caption{Auswertungstabelle}
+\end{table}
+
+2018-08-10 08:30:40.591678
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9306 & 0.1447 & 0.9342 & 0.0001\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9227 & 0.1437 & 0.9219 & 0.0000\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9387 & 0.1214 & 0.9454 & 0.0003\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9383 & 0.1306 & 0.9416 & 0.0002\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9206 & 0.1788 & 0.9223 & 0.0000\\
+\hline
+\end{tabular}%
+}
+\caption{Rechenzeit: 0:21:55.928092, beste val acc:0.9454}
+\end{table}
+
+2018-08-10 09:01:44.880237
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9388 & 0.1404 & 0.9382 & 0.0003\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9491 & 0.1032 & 0.9489 & 0.0004\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9243 & 0.1749 & 0.9219 & 0.0000\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9482 & 0.1188 & 0.9466 & 0.0002\\
+nummer??? & 16794/4198 & 3358/839 & 1:1 & 30 & 0.9503 & 0.0997 & 0.9587 & 0.0003\\
+\hline
+\end{tabular}%
+}
+\caption{Rechenzeit: 0:32:24.903828, beste val acc:0.9587}
+\end{table}
+
+2018-08-10 09:29:43.814491
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.7772 & 0.3916 & 0.8307 & 0.0134\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8185 & 0.3795 & 0.8637 & 0.0044\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.6190 & 0.6926 & 0.6367 & 0.0037\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8047 & 0.4158 & 0.8092 & 0.0162\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.7324 & 0.4711 & 0.8574 & 0.0012\\
+\hline
+\end{tabular}%
+}
+\caption{Rechenzeit: 0:03:56.070178, beste val acc:0.8637}
+\end{table}
+
+2018-08-10 09:35:06.518975
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8303 & 0.3562 & 0.8698 & 0.0022\\
+
+2018-08-10 09:36:59.420489
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.7703 & 0.4506 & 0.8259 & 0.0032\\
+
+2018-08-10 09:38:30.413937
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8231 & 0.4749 & 0.7879 & 0.0017\\
+
+2018-08-10 09:40:30.368460
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.7925 & 0.4162 & 0.8252 & 0.0089\\
+
+2018-08-10 09:42:29.475377
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8505 & 0.3340 & 0.9071 & 0.0010\\
+
+2018-08-10 09:44:30.189437
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8781 & 0.3288 & 0.8638 & 0.0127\\
+
+2018-08-10 09:50:19.575098
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.8787 & 0.3366 & 0.8717 & 0.0097\\
+
+2018-08-10 09:54:27.700016
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 30 & 0.9034 & 0.2548 & 0.8857 & 0.0085\\
+
+2018-08-10 10:01:15.578360
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \(n_{train}\)/\(n_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 528/132 & 1:1 & 60 & 0.9752 & 0.1624 & 0.9385 & 0.0004\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 60 & 0.9736 & 0.3894 & 0.9195 & 0.0002\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 60 & 0.9688 & 0.2904 & 0.9220 & 0.0010\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 60 & 0.9579 & 0.2472 & 0.9363 & 0.0025\\
+nummer??? & 2642/660 & 528/132 & 1:1 & 60 & 0.9490 & 0.4339 & 0.8816 & 0.0046\\
+\hline
+\end{tabular}%
+}
+\caption{Rechenzeit: 0:42:35.710211, beste val acc:0.9385}
+\end{table}
+
+2018-08-10 12:40:32.117061
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 1:1 & 60 & 0.9851 & 0.0750 & 0.9795 & 0.0002\\
+
+2018-08-10 13:00:13.660420
+\begin{table}[]
+\centering{}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllllll}
+\#.fold & \(N_{train}\)/\(N_{test}\) & \textit{dom:noDom} & \textit{epochs} & \textit{acc}  & \textit{val loss} & \textit{val acc} & \textit{varianz} \\
+\hline
+nummer??? & 2642/660 & 1:1 & 30 & 0.9705 & 0.1241 & 0.9588 & 0.0009\\
+nummer??? & 2642/660 & 1:1 & 30 & 0.9762 & 0.1177 & 0.9661 & 0.0004\\
+nummer??? & 2642/660 & 1:1 & 30 & 0.9747 & 0.1254 & 0.9593 & 0.0008\\
+nummer??? & 2642/660 & 1:1 & 30 & 0.9707 & 0.0913 & 0.9729 & 0.0003\\
+nummer??? & 2642/660 & 1:1 & 30 & 0.9570 & 0.1015 & 0.9665 & 0.0018\\
+\hline
+\end{tabular}%
+}
+\caption{Rechenzeit: 1:22:09.537278, beste val acc:0.9729}
+\end{table}

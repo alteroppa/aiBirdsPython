@@ -3,6 +3,10 @@ import os
 import shutil
 import matplotlib.pyplot as plt
 from datetime import datetime
+from scipy.stats import binom
+import scipy.stats
+from statistics import mean
+
 
 
 def resizeImages(size):
@@ -114,11 +118,12 @@ def splitAndCropImagesSlidingWindow(folderToRead):
                 windowBottom = newImage.crop((windowStartWidth, halfHeight, windowEndWidth, newHeight))
                 if 'originalDomino' in folderToRead:
                     if structureX > int((windowStartWidth + distance)) and structureX < int((windowEndWidth - distance)):
-                        windowBottom.save('screenshots/croppedDomino/croppedBot' + file[:-4] + '_' + str(iterator+1) + '.png')
-                    else:
-                        windowBottom.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(iterator+1) + '.png')
+                        windowBottom.save('screenshots/croppedDomino/cropDomino' + file[:-4] + '_' + str(iterator+1) + '.png')
+                    # to make sure structure coordinates are OUT of the window, deduct/add 30px as a threshold:
+                    if structureX < int((windowStartWidth + distance - 30)) or structureX > int((windowEndWidth - distance + 30)):
+                        windowBottom.save('screenshots/croppedNoDomino/cropNoDomino' + file[:-4] + '_' + str(iterator+1) + '.png')
                 else:
-                    windowBottom.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(iterator + 1) + '.png')
+                    windowBottom.save('screenshots/croppedNoDomino/cropNoDomino' + file[:-4] + '_' + str(iterator + 1) + '.png')
 
                 windowStartWidth += 20
                 windowEndWidth += 20
@@ -167,10 +172,10 @@ def splitAndCropImagesDominoScreenshots(folderToRead):
                     #print('structurex: ', structureX)
                     #print('x1: ', (x1 + quarterWidth/9))
                     #print('x2: ', (x2 - quarterWidth/9))
-                    newImageBottomHalf.save('screenshots/croppedDomino/croppedBot' + file[:-4] + '_' + str(j+1) + '.png')
+                    newImageBottomHalf.save('screenshots/croppedDomino/cropDomino' + file[:-4] + '_' + str(j+1) + '.png')
                     screenshotWithDominoDone = True
                 else:
-                    newImageBottomHalf.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(j+1) + '.png')
+                    newImageBottomHalf.save('screenshots/croppedNoDomino/cropNoDomino' + file[:-4] + '_' + str(j+1) + '.png')
 
             # if no screenshot with domino done yet, do one extra
             '''if screenshotWithDominoDone == False:
@@ -178,52 +183,50 @@ def splitAndCropImagesDominoScreenshots(folderToRead):
                 definitiveDominoStructure.save(
                     'screenshots/croppedDomino/croppedBot' + file[:-4] + '_extra.png')'''
 
-def plot(history, totalEpochs, trainSamples):
+def plot(history, totalEpochs, trainSamples, testSamples):
     print(history.history)
     #history.history is a dict with 'val_loss'=[...], 'val_acc'=..., 'val', 'loss'
     loss = history.history['loss']
     val_loss = history.history['val_loss']
     val_acc = history.history['val_acc']
-    standardabweichung = history.history['standardabweichung']
     epochs = range(1, len(loss) + 1)
     plt.plot(epochs, loss, 'r', label='Training loss',)
     plt.plot(epochs, val_loss, 'b', label='Validation loss')
     plt.plot(epochs, val_acc, 'g', label='Validation accuracy')
-    plt.plot(epochs, standardabweichung, 'y', label='standardabweichung')
-    plt.title('Training and validation loss')
-    testSamples = trainSamples / 5
-    plt.xlabel('Epochs (an ' + trainSamples + '/' + testSamples + ' train/test samples)')
+    plt.title('Training und validation loss (' + str(trainSamples) + '/' + str(testSamples) + ' train/test samples)')
+    plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.show()
     plt.savefig(str(totalEpochs) + ' epcs, ' + str(trainSamples) + 'trnSmpls ' + str(datetime.now()) + '.png')
+    plt.show()
 
 def latexTableTopline():
     with open('latexTable.txt', mode='a') as latexfile:
         latexfile.write('\n\n' + str(datetime.now()) +
                         '\n\\begin{table}[]\n\centering{}\n\\resizebox{\\textwidth}{!}{%'
-                        '\n\\begin{tabular}{lllllllll}\n'
-                        + '\\textbf{train samples} & \\textbf{test samples} & \\textbf{epochs} '
-                        + '& \\textbf{batch size} & \\textbf{img width} & \\textbf{img height} '
-                          ' & \\textbf{acc} & \\textbf{val loss} & \\textbf{val acc}\\\\\n\hline')
+                        '\n\\begin{tabular}{llllllllll}\n'
+                        + '\#.fold & \(N_{train}\)/\(N_{test}\) '
+                        + '& \\textit{dom:noDom} & \\textit{epochs} & \\textit{acc} '
+                          ' & \\textit{val loss} & \\textit{val acc} & \\textit{varianz} \\\\\n\hline')
 
-def latexTable(trainSamples, testSamples, epochs, batchSize, imageWidth, imageHeight, history):
+def latexTable(trainAmount, testAmount, epochs, history, valAccVariance):
     with open('latexTable.txt', mode='a') as latexfile:
         latexfile.write('\n'
-                        + str(trainSamples) + ' & '
-                        + str(testSamples) + ' & '
+                        + 'nummer???' + ' & '
+                        + str(trainAmount) + '/' + str(testAmount) + ' & '
+                        + '1:1' + ' & '
                         + str(epochs) + ' & '
-                        + str(batchSize) + ' & '
-                        + str(imageWidth) + ' & '
-                        + str(imageHeight) + ' & '
-                        + str("%.4f" % round(history.history['acc'][0],4)) + ' & '
-                        + str("%.4f" % round(history.history['val_loss'][0],4)) + ' & '
-                        + str("%.4f" % round(history.history['val_acc'][0],4)) + '\\\\'
+                        + str("%.4f" % round(mean(history.history['acc']),4)) + ' & '
+                        + str("%.4f" % round(mean(history.history['val_loss']),4)) + ' & '
+                        + str("%.4f" % round(mean(history.history['val_acc']),4)) + ' & '
+                        + str("%.4f" % round(valAccVariance,4)) + '\\\\'
                         )
 
-def latexTableBottomline():
+def latexTableBottomline(duration, bestValAcc):
     with open('latexTable.txt', mode='a') as latexfile:
-        latexfile.write('\n\hline\n\end{tabular}%\n}\n\caption{Auswertungstabelle}\n\end{table}')
+        latexfile.write('\n\hline\n\end{tabular}%\n}\n\caption{Rechenzeit: ' + str(duration)
+                        + ', beste val acc:' + str(round(bestValAcc, 4))
+                        + '}\n\end{table}')
 
 
 
@@ -256,3 +259,26 @@ def splitAndCropImagesNoDominoScreenshots(folderToRead):
                 newImageBottomHalf = newImage.crop((x1, halfHeight, x2, newHeight))
                 newImageBottomHalf.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(j + 1) + '.png')
 
+def copyToErrorFolder():
+    for file in os.listdir('screenshots/croppedDomino'):
+        if file.endswith('.png'):
+            fullFileNameFrom = os.path.join('screenshots/croppedDomino', file)
+            fullFileNameTo = os.path.join('screenshots/errors', file)
+            shutil.copy(fullFileNameFrom, fullFileNameTo)
+    for file in os.listdir('screenshots/croppedNoDomino'):
+        if file.endswith('.png'):
+            fullFileNameFrom = os.path.join('screenshots/croppedNoDomino', file)
+            fullFileNameTo = os.path.join('screenshots/errors', file)
+            shutil.copy(fullFileNameFrom, fullFileNameTo)
+
+def calcPercentile():
+    data_binom = binom.rvs(n=120, p=1 / 120, size=20000)
+    CI = binom.interval(0.95, 120, 1 / 120)
+    print(CI)
+    plt.hist(data_binom)
+    plt.show()
+
+def clopper_pearson(k=1,n=200,alpha=0.05):
+    lowerBoundary = scipy.stats.beta.ppf(alpha/2, k, n-k+1)
+    higherBoundary = scipy.stats.beta.ppf(1 - alpha/2, k+1, n-k)
+    print(lowerBoundary, higherBoundary)
