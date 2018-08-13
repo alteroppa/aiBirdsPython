@@ -100,9 +100,12 @@ def splitAndCropImagesSlidingWindow(folderToRead):
 
     for file in os.listdir(folderToRead):
         if file.endswith('.png'):
-            levelNumber = file[5:-4]
-            structureX = (int(coordinates[int(levelNumber) - 1].split(';')[1])) * 5 + 14 - cutPixelsUntilSlingshot
-            distance = (int(coordinates[int(levelNumber) - 1].split(';')[3])) * 5 + 14
+            structureX = 0
+            distance = 0
+            if not 'realLevels' in folderToRead:
+                levelNumber = file[5:-4]
+                structureX = (int(coordinates[int(levelNumber) - 1].split(';')[1])) * 5 + 14 - cutPixelsUntilSlingshot
+                distance = (int(coordinates[int(levelNumber) - 1].split(';')[3])) * 5 + 14
             image = Image.open(folderToRead + '/' + file)
             originalWidth, originalHeight = image.size
             newImage = image.crop((cutPixelsUntilSlingshot, 90, originalWidth - cutPixelsFromEnd, 390))
@@ -116,13 +119,15 @@ def splitAndCropImagesSlidingWindow(folderToRead):
 
             while windowEndWidth <= newWidth:
                 windowBottom = newImage.crop((windowStartWidth, halfHeight, windowEndWidth, newHeight))
+                if 'realLevels' in folderToRead:
+                    windowBottom.save('screenshots/realLevelsSplit/realLvl' + file[:-4] + '_' + str(iterator + 1) + '.png')
                 if 'originalDomino' in folderToRead:
                     if structureX > int((windowStartWidth + distance)) and structureX < int((windowEndWidth - distance)):
                         windowBottom.save('screenshots/croppedDomino/cropDomino' + file[:-4] + '_' + str(iterator+1) + '.png')
                     # to make sure structure coordinates are OUT of the window, deduct/add 30px as a threshold:
                     if structureX < int((windowStartWidth + distance - 30)) or structureX > int((windowEndWidth - distance + 30)):
                         windowBottom.save('screenshots/croppedNoDomino/cropNoDomino' + file[:-4] + '_' + str(iterator+1) + '.png')
-                else:
+                if 'originalNoDomino' in folderToRead:
                     windowBottom.save('screenshots/croppedNoDomino/cropNoDomino' + file[:-4] + '_' + str(iterator + 1) + '.png')
 
                 windowStartWidth += 20
@@ -189,6 +194,14 @@ def plot(history, totalEpochs, trainSamples, testSamples):
     loss = history.history['loss']
     val_loss = history.history['val_loss']
     val_acc = history.history['val_acc']
+
+
+    bestValAcc = str(history.history['val_acc'][-1:])
+    print('best val acc:', bestValAcc)
+    with open ('latexTable.txt', mode='a') as latexfile:
+        latexfile.write('\nbest val acc: '+bestValAcc)
+
+
     epochs = range(1, len(loss) + 1)
     plt.plot(epochs, loss, 'r', label='Training loss',)
     plt.plot(epochs, val_loss, 'b', label='Validation loss')
@@ -216,16 +229,18 @@ def latexTable(trainAmount, testAmount, epochs, history, valAccVariance):
                         + str(trainAmount) + '/' + str(testAmount) + ' & '
                         + '1:1' + ' & '
                         + str(epochs) + ' & '
-                        + str("%.4f" % round(mean(history.history['acc']),4)) + ' & '
-                        + str("%.4f" % round(mean(history.history['val_loss']),4)) + ' & '
-                        + str("%.4f" % round(mean(history.history['val_acc']),4)) + ' & '
-                        + str("%.4f" % round(valAccVariance,4)) + '\\\\'
+                        + str("%.4f" % round(history.history['acc'][-1:][0], 4)) + ' & '
+                        + str("%.4f" % round(history.history['val_loss'][-1:][0],4)) + ' & '
+                        + str("%.4f" % round(history.history['val_acc'][-1:][0],4)) + ' & '
+                        + 'valAccVariance muesste hier stehen' + '\\\\'
                         )
 
-def latexTableBottomline(duration, bestValAcc):
+def latexTableBottomline(duration, bestValAcc, overallValStdev, overallValLossStdev):
     with open('latexTable.txt', mode='a') as latexfile:
         latexfile.write('\n\hline\n\end{tabular}%\n}\n\caption{Rechenzeit: ' + str(duration)
                         + ', beste val acc:' + str(round(bestValAcc, 4))
+                        + 'val acc Stdev: ' + str(round(overallValStdev,4))
+                        + 'val loss Stdev: ' + str(round(overallValLossStdev, 4))
                         + '}\n\end{table}')
 
 
