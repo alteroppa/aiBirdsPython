@@ -6,9 +6,10 @@ __pycache__/
 *$py.class
 
 *.h5
-originalDominoStructure/
-originalNoDominoStructure/
+*.log
 *.jpynb
+*.zip
+
 
 # C extensions
 *.so
