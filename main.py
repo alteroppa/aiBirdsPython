@@ -12,10 +12,22 @@ import utils
 import os
 from statistics import mean, variance, stdev
 
+
+'''
+This file provides all necessary methods to run the training. All secondary, helper methods can be found in utils.py.
+'''
+
+
+
 #imageWidth, imageHeight = 187, 150
 imageWidth, imageHeight = 93, 75
+lowImageWith, lowImageHeight = 50, 40
 
-def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
+'''
+main method in this file. Defines all necessary parameters for the model and for documentation, gets a model, 
+trains it and calls the validation method. Measures runtime, too.
+'''
+def trainModel(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
     if cleanData:
         amountCroppedSplitDomino = int(len(os.listdir('screenshots/croppedDominoCleanOhne10'))) - 1
         if equalAmount:
@@ -47,6 +59,7 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
 
     absoluteStartTime = datetime.datetime.now()
     imgWidth, imgHeight = imageWidth, imageHeight
+    #imgWidth, imgHeight = lowImageWith, lowImageHeight
 
     trainDataDir = 'screenshots/trainSplit'
     testDataDir = 'screenshots/testSplit'
@@ -66,12 +79,10 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
     meanValAcc = 0
     meanValLoss = 0
     meanTrainLoss = 0
-    bestValAcc = 0
-    lowestValLoss = 50
     bestAcc = 0
-    valAccStd = []
-    valLossStd = []
-    accStd = []
+    listValAcc = []
+    listValLoss = []
+    listAcc = []
 
     # callbacks
     csv_logger = callbacks.CSVLogger('training' + str(datetime.datetime.now()) +'.log')
@@ -82,10 +93,13 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
 
 
     for i in range(folds):
-        startTime = datetime.datetime.now()
+        bestValAcc = 0
+        lowestValLoss = 50
         print('training fold', i, '...')
 
         splitPrepare(amountCroppedSplitDomino, amountCroppedSplitNoDomino, clean=cleanData, fractionOfTest=5)
+
+        startTime = datetime.datetime.now()
 
         model = getModel(input_shape)
 
@@ -112,17 +126,16 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
                 epochs=epochs,
                 validation_data=testSet,
                 validation_steps=testSamples // batchSize,
-                verbose=2, callbacks=[csv_logger, earlyStopping, saveBestModel, history])
+                verbose=2, callbacks=[csv_logger, history, saveBestModel, earlyStopping])
 
             # reload best weights
             model.load_weights('bestWeightsModel.h5')
-            model.save_weights(str(datetime.datetime.now()) + 'MODEL.h5')
+            #model.save_weights(str(datetime.datetime.now()) + 'MODEL.h5')
         else: # in case you only want to predict, not train
             model.load_weights('23:20:23.h5')
             model.compile(loss='binary_crossentropy',
                           optimizer='adam',
                           metrics=['accuracy'])
-            # here you have to still state what you want to do, else nothing will happen
             validateImages(model)
 
         utils.plot(history, epochs, trainSamples, testSamples)
@@ -138,36 +151,38 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
         if max(history.history['acc']) > bestAcc:
             bestAcc = max(history.history['acc'])
 
-        loss = min(history.history['loss'])
-        val_loss = min(history.history['val_loss'])
-        val_acc = max(history.history['val_acc'])
-        acc = max(history.history['acc'])
-        valAccStd.append(val_acc)
-        valLossStd.append(val_loss)
-        accStd.append(acc)
-        meanTrainLoss += loss
-        meanValAcc += val_acc
-        meanValLoss += val_loss
-        meanAcc += acc
+        # these values are measured each epoch
+        val_acc = max(history.history['val_acc']) #ensures that the best epoch (regarding val acc) is used for measurements
+        index = history.history['val_acc'].index(val_acc)
+        loss = history.history['loss'][index] # takes the values on index[val_acc]
+        val_loss = history.history['val_loss'][index]
+        acc = history.history['acc'][index]
+        listValAcc.append(val_acc)
+        listValLoss.append(val_loss)
+        listAcc.append(acc)
 
         print('best val_acc:', round(bestValAcc, 4))
         print('lowest val_loss:', round(lowestValLoss, 4))
         print('best acc:', round(bestAcc, 4))
 
 
+
+
         if i == 0:
             utils.latexTableTopline()
-        utils.latexTable(trainAmount, testAmount, epochs, history, valAccStd)
+        utils.latexTable(trainAmount, testAmount, epochs, history)
         if i == folds-1:
-            overallValAccStdev = stdev(valAccStd)
-            overallValLossStdev = stdev(valLossStd)
+            overallValAccStdev = stdev(listValAcc)
+            overallValLossStdev = stdev(listValLoss)
             absoluteDuration = datetime.datetime.now() - absoluteStartTime
             utils.latexTableBottomline(absoluteDuration, bestValAcc, overallValAccStdev, overallValLossStdev)
+
 
         if cleanData:
             validateImages(model, 'screenshots/validationFolderClean')
         else:
             validateImages(model, 'screenshots/validationFolderFaulty')
+
 
         #validateImages(model, 'screenshots/realLevelsSplit')
 
@@ -175,10 +190,11 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
     meanValAcc = meanValAcc/folds
     meanValLoss = meanValLoss/folds
     meanAcc = meanAcc/folds
-    valAccStd = stdev(valAccStd)
-    valLossStd = stdev(valLossStd)
-    accStd = stdev(accStd)
+    valAccStd = stdev(listValAcc)
+    valLossStd = stdev(listValLoss)
+    accStd = stdev(listAcc)
 
+    # these values are measured over ALL epochs
     print('acc std:', round(accStd,4))
     print('val acc std:', round(valAccStd,4))
     print('val loss std:', round(valLossStd,4))
@@ -190,8 +206,9 @@ def trainModel1(train, epochs=30, folds=5, cleanData=True, equalAmount=True):
 
 
 
-
-
+'''
+creates a model. The Dropout can be activated, though I didn't see much difference.
+'''
 def getModel(input_shape):
     model = Sequential()
     model.add(Conv2D(32, (3, 3), input_shape=input_shape))
@@ -214,6 +231,9 @@ def getModel(input_shape):
     return model
 
 
+'''
+predicts all screenshots in a specific folder. Those screenshots must be the same size as the training data. 
+'''
 def validateImages(model, validationDir):
     for file in os.listdir(validationDir):
         if not file.startswith('.'):
@@ -230,18 +250,21 @@ def validateImages(model, validationDir):
             print(file + ': ' + prediction)
             print(result)
 
-def standardabweichung(y_true, y_pred):
-    return (y_pred - y_true)
-    #return (y_pred - y_true)
 
+'''
+function used for preparation. Fetches files from original folders of where the java agent saved the created screenshots.
+CARE: those functions in utils use relative paths that will likely not be present on your machine! Change accordingly.
 
+This function doesn't have to be called in every run. 
+Also, only parts of the function can be called to fulfil your needs. Just uncomment the lines accordingly.
+'''
 def prepare():
     #utils.emptyTrainAndTestFolders()
     #utils.emptyFolder('screenshots/resizedDomino')
     #utils.emptyFolder('screenshots/resizedNoDomino')
     #utils.emptyFolder('screenshots/originalDomino')
     #utils.emptyFolder('screenshots/originalNoDomino')
-    utils.emptyFolder('screenshots/validationFolder')
+    #utils.emptyFolder('screenshots/validationFolder')
     #utils.emptyFolder('screenshots/croppedDomino')
     #utils.emptyFolder('screenshots/croppedNoDomino')
     #utils.getCoordinatesFile()
@@ -250,31 +273,13 @@ def prepare():
     #utils.splitAndCropImagesSlidingWindow('screenshots/originalNoDomino')
 
 
-    '''
-    # THIS HAS BEEN DONE BY HAND by moving (not copying) 10 screenshots of each class to validationFolder BEFORE training
-    # copies the last 10 pictures of each class into the validation folder
-    #for file in random.sample(os.listdir('screenshots/croppedDomino')[:30], 10):
-    for file in random.sample(os.listdir('screenshots/croppedDomino'), 10):
-        if file.endswith('.png'):
-            filePathToSave = os.path.join('screenshots/validationFolder/' , 'domino' + file)
-            shutil.copy(os.path.join('screenshots/croppedDomino', file), filePathToSave)
-    #for file in random.sample(os.listdir('screenshots/croppedNoDomino'), 10):
-    for file in random.sample(os.listdir('screenshots/croppedNoDomino'), 10):
-        if file.endswith('.png'):
-            filePathToSave = os.path.join('screenshots/validationFolder/', 'noDomino' + file)
-            shutil.copy(os.path.join('screenshots/croppedNoDomino', file), filePathToSave)
-    #utils.resizeImagesInFolder((imageWidth, imageHeight), 'screenshots/validationFolder')
-    '''
-
-
 
 def splitPrepare(amountCroppedSplitDomino, amountCroppedSplitNoDomino, clean=True, fractionOfTest=5):
     utils.emptyFolder('screenshots/testSplit/domino')
     utils.emptyFolder('screenshots/testSplit/noDomino')
     utils.emptyFolder('screenshots/trainSplit/domino')
     utils.emptyFolder('screenshots/trainSplit/noDomino')
-    dominoFolder = ''
-    noDominoFolder = ''
+
     if clean: # checks if you want to train on the by-hand cleaned data or on the 'dirty' data
         dominoFolder='screenshots/croppedDominoCleanOhne10'
         noDominoFolder = 'screenshots/croppedNoDominoCleanOhne10'
@@ -333,11 +338,9 @@ def splitPrepare(amountCroppedSplitDomino, amountCroppedSplitNoDomino, clean=Tru
 
 
 if __name__ == "__main__":
-
     startTime = datetime.datetime.now()
-
-    #prepare()
-    trainModel1(train=True, epochs=30, folds=5, cleanData=False, equalAmount=True)
+    #prepare() # does not have to be called every run, rather only once to clean up and (re)-fetch the screenshots
+    trainModel(train=True, epochs=30, folds=5, cleanData=True, equalAmount=True)
     endtime = datetime.datetime.now()
     delta = endtime - startTime
     print("total duration over 5 folds:", str(delta))

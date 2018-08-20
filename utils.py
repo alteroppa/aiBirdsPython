@@ -5,8 +5,13 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from scipy.stats import binom
 import scipy.stats
-from statistics import mean
+from statistics import mean, stdev
 
+# the values of the last epoch each
+listAcc = []
+listValAcc= []
+listLoss = []
+listValLoss=[]
 
 
 def resizeImages(size):
@@ -21,6 +26,14 @@ def resizeImages(size):
             image = Image.open('screenshots/originalNoDomino/' + file)
             newImage = image.resize(size)
             newImage.save('screenshots/resizedNoDomino/' + file)
+
+def resizeImagesDirectlyInFolder(size, folder):
+    print('resizing images in', folder, ' to size ' + size + ' ...')
+    for file in os.listdir(folder):
+        if file.endswith('.png'):
+            image = Image.open(folder + '/' + file)
+            newImage = image.resize(size)
+            newImage.save(folder + '/' + file)
 
 def getCoordinatesFile():
     coordinatesSrc = '../aiBirds/levelGenerator/generatedLevels/dominoCoordinates.txt'
@@ -40,7 +53,7 @@ def emptyTrainAndTestFolders():
     emptyFolder('screenshots/test/domino')
 
 def fetchImagesFromSourceToOriginalFolders():
-    print('fetching images from source (aibirds/abV1.32/screenshots) to screenshots/original[No]Domino ...')
+    print('fetching images from source (aibirds/abV1.32/screenshots [LOCAL SOURCE!]) to screenshots/original[No]Domino ...')
     srcfolderDomino = '../aiBirds/abV1.32/screenshots/dominoStructure'
     goalfolderDomino = 'screenshots/originalDomino'
     amountOfPicsDomino = len(os.listdir(srcfolderDomino))
@@ -49,14 +62,6 @@ def fetchImagesFromSourceToOriginalFolders():
     goalfolderNoDomino = 'screenshots/originalNoDomino'
     amountOfPicsNoDomino = len(os.listdir(srcfolderNoDomino))
     fetchImagesFromPool(0, amountOfPicsNoDomino, srcfolderNoDomino, goalfolderNoDomino)
-
-def resizeImagesInFolder(size, folderName):
-    print('resizing images in folder ' + folderName + ' to size ' + str(size) + ' ...')
-    for file in os.listdir(folderName):
-        if file.endswith('.png'):
-            image = Image.open(folderName + '/' + file)
-            newImage = image.resize(size)
-            newImage.save(folderName +'/' + file)
 
 def getFolderSize(folderName):
     return(len(os.listdir(folderName)))
@@ -160,33 +165,18 @@ def splitAndCropImagesDominoScreenshots(folderToRead):
             quarterWidth = newWidth/4
             halfHeight = newHeight/2
 
-            screenshotWithDominoDone = False
             for j in range(4):
                 x1 = (j) * quarterWidth
                 x2 = (j+1) * quarterWidth
 
-                # top half cut in 4 quarters
-                newImageTopHalf = newImage.crop((x1, 0, x2, halfHeight))
-
-                # for now: don't save top half, because there is no point anyway - it's just blue sky. Enable optionally.
-                #newImageTopHalf.save('screenshots/croppedNoDomino/croppedTop' + file[:-4] + '_' + str(j+1) + '.png')
-
                 # bottom half cut in 4 quarters
                 newImageBottomHalf = newImage.crop((x1, halfHeight, x2, newHeight))
                 if structureX > int((x1 + quarterWidth/8)) and structureX < int((x2 - quarterWidth/8)):
-                    #print('structurex: ', structureX)
-                    #print('x1: ', (x1 + quarterWidth/9))
-                    #print('x2: ', (x2 - quarterWidth/9))
                     newImageBottomHalf.save('screenshots/croppedDomino/cropDomino' + file[:-4] + '_' + str(j+1) + '.png')
                     screenshotWithDominoDone = True
                 else:
                     newImageBottomHalf.save('screenshots/croppedNoDomino/cropNoDomino' + file[:-4] + '_' + str(j+1) + '.png')
 
-            # if no screenshot with domino done yet, do one extra
-            '''if screenshotWithDominoDone == False:
-                definitiveDominoStructure = newImage.crop((structureX - quarterWidth/2, halfHeight, structureX + quarterWidth/2, newHeight))
-                definitiveDominoStructure.save(
-                    'screenshots/croppedDomino/croppedBot' + file[:-4] + '_extra.png')'''
 
 def plot(history, totalEpochs, trainSamples, testSamples):
     print(history.history)
@@ -200,7 +190,6 @@ def plot(history, totalEpochs, trainSamples, testSamples):
     print('best val acc:', bestValAcc)
     with open ('latexTable.txt', mode='a') as latexfile:
         latexfile.write('\nbest val acc: '+bestValAcc)
-
 
     epochs = range(1, len(loss) + 1)
     plt.plot(epochs, loss, 'r', label='Training loss',)
@@ -217,32 +206,36 @@ def latexTableTopline():
     with open('latexTable.txt', mode='a') as latexfile:
         latexfile.write('\n\n' + str(datetime.now()) +
                         '\n\\begin{table}[]\n\centering{}\n\\resizebox{\\textwidth}{!}{%'
-                        '\n\\begin{tabular}{llllllllll}\n'
+                        '\n\\begin{tabular}{lllllllll}\n'
                         + '\#.fold & \(N_{train}\)/\(N_{test}\) '
                         + '& \\textit{dom:noDom} & \\textit{epochs} & \\textit{acc} '
-                          ' & \\textit{val loss} & \\textit{val acc} & \\textit{varianz} \\\\\n\hline')
+                          ' & \\textit{val loss} & \\textit{val acc} \\\\\n\hline')
 
-def latexTable(trainAmount, testAmount, epochs, history, valAccVariance):
+def latexTable(trainAmount, testAmount, epochs, history):
+    listAcc.append(history.history['acc'][-1:][0])
+    listValAcc.append(history.history['val_acc'][-1:][0])
+    listLoss.append(history.history['loss'][-1:][0])
+    listValLoss.append(history.history['val_loss'][-1:][0])
     with open('latexTable.txt', mode='a') as latexfile:
         latexfile.write('\n'
-                        + 'nummer???' + ' & '
+                        + 'run.fold' + ' & '
                         + str(trainAmount) + '/' + str(testAmount) + ' & '
                         + '1:1' + ' & '
                         + str(epochs) + ' & '
                         + str("%.4f" % round(history.history['acc'][-1:][0], 4)) + ' & '
                         + str("%.4f" % round(history.history['val_loss'][-1:][0],4)) + ' & '
-                        + str("%.4f" % round(history.history['val_acc'][-1:][0],4)) + ' & '
-                        + 'valAccVariance muesste hier stehen' + '\\\\'
+                        + str("%.4f" % round(history.history['val_acc'][-1:][0],4)) + '\\\\'
                         )
 
 def latexTableBottomline(duration, bestValAcc, overallValStdev, overallValLossStdev):
     with open('latexTable.txt', mode='a') as latexfile:
-        latexfile.write('\n\hline\n\end{tabular}%\n}\n\caption{Rechenzeit: ' + str(duration)
+        latexfile.write('\nMittelwert & - & - & - & ' + str(round(mean(listAcc),4)) + ' & ' + str(round(mean(listValLoss),4)) + ' & ' + str(round(mean(listValAcc),4)) + ' \\'
+                        + '\nStandardabw. & - & - & - & ' + str(round(stdev(listAcc),4)) + ' & ' + str(round(stdev(listValLoss),4)) + ' & ' + str(round(stdev(listValAcc),4)) + ' \\'
+                        + '\n\hline\n\end{tabular}%\n}\n\caption{Rechenzeit: ' + str(duration)
                         + ', beste val acc:' + str(round(bestValAcc, 4))
                         + 'val acc Stdev: ' + str(round(overallValStdev,4))
                         + 'val loss Stdev: ' + str(round(overallValLossStdev, 4))
                         + '}\n\end{table}')
-
 
 
 def splitAndCropImagesNoDominoScreenshots(folderToRead):
@@ -273,18 +266,6 @@ def splitAndCropImagesNoDominoScreenshots(folderToRead):
                 # bottom half cut in 4 quarters
                 newImageBottomHalf = newImage.crop((x1, halfHeight, x2, newHeight))
                 newImageBottomHalf.save('screenshots/croppedNoDomino/croppedBot' + file[:-4] + '_' + str(j + 1) + '.png')
-
-def copyToErrorFolder():
-    for file in os.listdir('screenshots/croppedDomino'):
-        if file.endswith('.png'):
-            fullFileNameFrom = os.path.join('screenshots/croppedDomino', file)
-            fullFileNameTo = os.path.join('screenshots/errors', file)
-            shutil.copy(fullFileNameFrom, fullFileNameTo)
-    for file in os.listdir('screenshots/croppedNoDomino'):
-        if file.endswith('.png'):
-            fullFileNameFrom = os.path.join('screenshots/croppedNoDomino', file)
-            fullFileNameTo = os.path.join('screenshots/errors', file)
-            shutil.copy(fullFileNameFrom, fullFileNameTo)
 
 def calcPercentile():
     data_binom = binom.rvs(n=120, p=1 / 120, size=20000)
